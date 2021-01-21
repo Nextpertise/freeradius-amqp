@@ -27,22 +27,12 @@ services:
       - RABBITMQ_DEFAULT_VHOST=
     volumes:
       - "./data/rabbitmq:/var/lib/rabbitmq/mnesia/"
-  app_init:
+  app:
     image: pythonamqp:latest
     depends_on:
       - rabbitmq
     command: tail -f /dev/null 
     restart: on-failure
-    volumes:
-      - ./data/python:/app
-    environment:
-      - TZ=UTC
-  app_worker:
-    image: pythonamqp:latest
-    depends_on:
-      - rabbitmq
-    command: /app/worker.py
-    restart: always
     volumes:
       - ./data/python:/app
     environment:
