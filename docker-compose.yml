@@ -1,0 +1,50 @@
+
+version: '3.2'
+
+services:
+
+  freeradius:
+    image: freeradiusamqp:latest
+    container_name: freeradius
+    restart: always
+    environment:
+        - TZ=UTC
+    ports:
+        - "1812:1812"
+        - "1813:1812"
+    volumes:
+        - ./data/raddb/:/usr/local/etc/raddb/
+  rabbitmq:
+    hostname: rabbitmq
+    networks:
+    - default
+    image: rabbitmq:3.8
+    restart: always
+    environment:
+      - TZ=UTC
+      - RABBITMQ_DEFAULT_USER=radiustest
+      - RABBITMQ_DEFAULT_PASS=radiustest
+      - RABBITMQ_DEFAULT_VHOST=
+    volumes:
+      - "./data/rabbitmq:/var/lib/rabbitmq/mnesia/"
+  app_init:
+    image: pythonamqp:latest
+    depends_on:
+      - rabbitmq
+    command: tail -f /dev/null 
+    restart: on-failure
+    volumes:
+      - ./data/python:/app
+    environment:
+      - TZ=UTC
+  app_worker:
+    image: pythonamqp:latest
+    depends_on:
+      - rabbitmq
+    command: /app/worker.py
+    restart: always
+    volumes:
+      - ./data/python:/app
+    environment:
+      - TZ=UTC
+
