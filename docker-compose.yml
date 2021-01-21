@@ -4,8 +4,8 @@ version: '3.2'
 services:
 
   freeradius:
-    image: freeradiusamqp:latest
     container_name: freeradius
+    image: freeradiusamqp:latest
     restart: always
     environment:
         - TZ=UTC
@@ -15,6 +15,7 @@ services:
     volumes:
         - ./data/raddb/:/usr/local/etc/raddb/
   rabbitmq:
+    container_name: rabbitmq
     hostname: rabbitmq
     networks:
     - default
@@ -28,6 +29,7 @@ services:
     volumes:
       - "./data/rabbitmq:/var/lib/rabbitmq/mnesia/"
   app:
+    container_name: app
     image: pythonamqp:latest
     depends_on:
       - rabbitmq
