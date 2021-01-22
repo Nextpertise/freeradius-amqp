@@ -19,7 +19,7 @@ services:
     hostname: rabbitmq
     networks:
     - default
-    image: rabbitmq:3.8
+    image: rabbitmq:3.8-management
     restart: always
     environment:
       - TZ=UTC
@@ -27,7 +27,9 @@ services:
       - RABBITMQ_DEFAULT_PASS=radiustest
       - RABBITMQ_DEFAULT_VHOST=
     volumes:
-      - "./data/rabbitmq:/var/lib/rabbitmq/mnesia/"
+      - "./data/rabbitmq:/var/lib/rabbitmq/"
+    ports:      
+      - 15672:15672
   app:
     container_name: app
     image: pythonamqp:latest
