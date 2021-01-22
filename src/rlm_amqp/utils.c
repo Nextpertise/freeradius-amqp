@@ -68,7 +68,8 @@ int die_on_error(int x, char const *context) {
   return 1;
 }
 
-void die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
+int die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
+	int ex = 0;
   switch (x.reply_type) {
     case AMQP_RESPONSE_NORMAL:
       return;
@@ -76,6 +77,7 @@ void die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
     case AMQP_RESPONSE_NONE:
       //fprintf(stderr, "%s: missing RPC reply type!\n", context);
     	ERROR("%s: missing RPC reply type!\n", context);
+    	ex = 1;
       break;
 
     case AMQP_RESPONSE_LIBRARY_EXCEPTION:
@@ -94,6 +96,7 @@ void die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
           ERROR("%s: server connection error %uh, message: %.*s\n",
                             context, m->reply_code, (int)m->reply_text.len,
                             (char *)m->reply_text.bytes);
+          ex = 1;
           break;
         }
         case AMQP_CHANNEL_CLOSE_METHOD: {
@@ -104,6 +107,7 @@ void die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
           ERROR("%s: server channel error %uh, message: %.*s\n",
                             context, m->reply_code, (int)m->reply_text.len,
                             (char *)m->reply_text.bytes);
+          ex = 1;
           break;
         }
         default:
@@ -111,10 +115,13 @@ void die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
           //        context, x.reply.id);
         	ERROR("%s: unknown server error, method id 0x%08X\n",
         	                  context, x.reply.id);
+        	ex = 1;
           break;
       }
       break;
   }
+
+  return ex;
 
   //exit(1);
 }
@@ -202,4 +209,44 @@ void amqp_dump(void const *buffer, size_t len) {
   if (numinrow != 0) {
     printf("%08lX:\n", count);
   }
+}
+
+char *trim(char *str)
+{
+    size_t len = 0;
+    char *frontp = str;
+    char *endp = NULL;
+
+    if( str == NULL ) { return NULL; }
+    if( str[0] == '\0' ) { return str; }
+
+    len = strlen(str);
+    endp = str + len;
+
+    /* Move the front and back pointers to address the first non-whitespace
+     * characters from each end.
+     */
+    while( isspace((unsigned char) *frontp) ) { ++frontp; }
+    if( endp != frontp )
+    {
+        while( isspace((unsigned char) *(--endp)) && endp != frontp ) {}
+    }
+
+    if( frontp != str && endp == frontp )
+            *str = '\0';
+    else if( str + len - 1 != endp )
+            *(endp + 1) = '\0';
+
+    /* Shift the string so that it starts at str so that if it's dynamically
+     * allocated, we can still free it on the returned pointer.  Note the reuse
+     * of endp to mean the front of the string buffer now.
+     */
+    endp = str;
+    if( frontp != str )
+    {
+            while( *frontp ) { *endp++ = *frontp++; }
+            *endp = '\0';
+    }
+
+    return str;
 }

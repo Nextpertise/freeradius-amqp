@@ -35,6 +35,7 @@ RCSID("$Id$")
 
 #include <sys/time.h>
 
+
 /*
  *	Define a structure for our module configuration.
  *
@@ -48,13 +49,15 @@ typedef struct rlm_amqp_t {
 	char const *username;
 	char const *password;
 	char const *exchange;
+	char const *vhost;
 	char const *routingkey;
-	uint32_t connect_timout;
+	uint32_t connect_timeout;
 	char const *auth_data;
 	char const *acct_data;
-	char const *custom_key_hostname;
-	char const *custom_key_key2;
+	char const *custom_kvp;
 	char const *missed_file;
+	amqp_socket_t *amqp_socket;
+	amqp_connection_state_t conn;
 } rlm_amqp_t;
 
 /*
@@ -66,30 +69,30 @@ static const CONF_PARSER module_config[] = {
 		{ "username", FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t, username), "guest" },
 		{ "password",FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t, password), "guest" },
 		{ "exchange", FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t, exchange),"amq.direct" },
+		{ "vhost", FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t, vhost),"/" },
 		{ "routingkey", FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t, routingkey), "rlm_amqp" },
-		{ "connect_timout", FR_CONF_OFFSET(PW_TYPE_INTEGER, rlm_amqp_t, connect_timout), "5" },
+		{ "connect_timeout", FR_CONF_OFFSET(PW_TYPE_INTEGER, rlm_amqp_t, connect_timeout), "5" },
 		{ "auth_data",FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t, auth_data), NULL },
 		{ "acct_data", FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t,acct_data), NULL },
-		{ "custom_key_hostname",FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t, custom_key_hostname),NULL },
-		{ "custom_key_key2", FR_CONF_OFFSET(PW_TYPE_STRING,rlm_amqp_t, custom_key_key2), NULL },
+		{ "custom_kvp",FR_CONF_OFFSET(PW_TYPE_STRING, rlm_amqp_t, custom_kvp),"" },
 		{ "missed_file", FR_CONF_OFFSET(PW_TYPE_STRING,rlm_amqp_t, missed_file), "/tmp/amqp_missed.txt" },
 		CONF_PARSER_TERMINATOR
 };
 
-amqp_socket_t *amqp_socket = NULL;
-amqp_connection_state_t conn;
 
-static void disconnect_amqp(void){
-
+static void disconnect_amqp(void *instance){
+	rlm_amqp_t *inst = instance;
 	DEBUG("Closing AMQP Connection");
 
-	die_on_amqp_error(amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS),
+	die_on_amqp_error(amqp_channel_close(inst->conn, 1, AMQP_REPLY_SUCCESS),
 					"Closing channel");
-	die_on_amqp_error(amqp_connection_close(conn, AMQP_REPLY_SUCCESS),
+	die_on_amqp_error(amqp_connection_close(inst->conn, AMQP_REPLY_SUCCESS),
 					"Closing connection");
-	die_on_error(amqp_destroy_connection(conn), "Ending connection");
+	die_on_error(amqp_destroy_connection(inst->conn), "Ending connection");
 
 }
+
+
 
 static int connect_amqp(void *instance) {
 
@@ -97,36 +100,44 @@ static int connect_amqp(void *instance) {
 
 	DEBUG("Connecting to AMQP");
 
-	if(amqp_socket){
-		amqp_socket = NULL;
-		die_on_error(amqp_destroy_connection(conn), "Ending connection");
+	if(inst->amqp_socket){
+		inst->amqp_socket = NULL;
+		die_on_error(amqp_destroy_connection(inst->conn), "Ending connection");
 
 	}
+	struct timeval tval;
+	struct timeval *tv;
+	tv = &tval;
+	tv->tv_sec = inst->connect_timeout;
 
-	conn = amqp_new_connection();
-	amqp_socket = amqp_tcp_socket_new(conn);
+	inst->conn = amqp_new_connection();
+	amqp_set_handshake_timeout(inst->conn, tv);
 
-	if (!amqp_socket) {
+	inst->amqp_socket = amqp_tcp_socket_new(inst->conn);
+
+	if (!inst->amqp_socket) {
 		ERROR("Unable to create AMQP socket: %d", inst->port);
 		return -1;
 	}
 
 	int status = 1;
-	struct timeval tval;
-	struct timeval *tv;
-	tv = &tval;
-	tv->tv_sec = inst->connect_timout;
-	status = amqp_socket_open_noblock(amqp_socket, inst->hostname, inst->port, tv); //(socket, inst->hostname, inst->port);
+
+	status = amqp_socket_open_noblock(inst->amqp_socket, inst->hostname, inst->port, tv); //(socket, inst->hostname, inst->port);
 	if (status) {
 		ERROR("Error opening TCP socket: %d, status: %d",inst->port, status);
 		return -1;
 	}
 
-	die_on_amqp_error(
-				amqp_login(conn, "/", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN,
+	int logon = 0;
+	logon = die_on_amqp_error(
+				amqp_login(inst->conn, inst->vhost, 0, 131072, 0, AMQP_SASL_METHOD_PLAIN,
 						inst->username, inst->password), "Logging in");
-	amqp_channel_open(conn, 1);
-	die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
+	if(!logon) {
+		ERROR("Logon not successfull");
+		return -1;
+	}
+	amqp_channel_open(inst->conn, 1);
+	die_on_amqp_error(amqp_get_rpc_reply(inst->conn), "Opening channel");
 
 	return 0;
 }
@@ -144,11 +155,12 @@ static void dump_to_file(void *instance, char const *content){
 	fclose(fptr);
 }
 
+
 static int put_amqp(void *instance, char const *messagebody) {
 
 	rlm_amqp_t *inst = instance;
 
-	if(!(amqp_get_sockfd(conn) >= 0)){
+	if(!(amqp_get_sockfd(inst->conn) >= 0)){
 		DEBUG("Socket is closed, reconnecting");
 		connect_amqp(instance);
 	}
@@ -160,8 +172,8 @@ static int put_amqp(void *instance, char const *messagebody) {
 		props.content_type = amqp_cstring_bytes("text/plain");
 		props.delivery_mode = 2; /* persistent delivery mode */
 		int ret = die_on_error(
-				amqp_basic_publish(conn, 1, amqp_cstring_bytes(inst->exchange),
-						amqp_cstring_bytes(inst->routingkey), 0, 0, &props,
+				amqp_basic_publish(inst->conn, 1, amqp_cstring_bytes(inst->exchange),
+						amqp_cstring_bytes(inst->routingkey), 1, 0, &props,
 						amqp_cstring_bytes(messagebody)), "Publishing");
 		if(!ret){
 			ERROR("Error publishing to AMQP, connection will be re-attempted");
@@ -180,27 +192,40 @@ static int put_amqp(void *instance, char const *messagebody) {
 static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 	rlm_amqp_t *inst = instance;
 
-	DEBUG("Sending data to AMQP event: %s, host: %s, port: %d, user: %s, exchange: %s", evt, inst->hostname, inst->port, inst->username, inst->exchange);
+	RDEBUG("Sending data to AMQP event: %s, host: %s, port: %d, user: %s, exchange: %s",evt, inst->hostname, inst->port, inst->username, inst->exchange);
 
-	char *copy;
-	if (strcmp(evt, "authenticate") == 0) {
-		copy = strdup(inst->auth_data);
-	} else if (strcmp(evt, "preacct") == 0) {
-		copy = strdup(inst->acct_data);
-	} else if (strcmp(evt, "accounting") == 0) {
-		copy = strdup(inst->acct_data);
-	}
-
-	char *token = strtok(copy, ",");
 
 	VALUE_PAIR *item_vp;
 	json_object *json = json_object_new_object();
 	json_object_object_add(json, "event_type", json_object_new_string(evt));
-	json_object_object_add(json, "custom_key_hostname",
-			json_object_new_string(inst->custom_key_hostname));
-	json_object_object_add(json, "custom_key_key2",
-			json_object_new_string(inst->custom_key_key2));
 
+	char *ckvp = strdup(inst->custom_kvp);
+	char *kvp = strtok(ckvp, " ");
+
+	while(kvp != NULL){
+		char *key = malloc(100);
+		char *val = malloc(100);
+		if(sscanf(kvp, "%[^=]=%s", key, val) == 2) {
+			json_object_object_add(json, key, json_object_new_string(val));
+		} else {
+			RERROR("Error in setting custom_kvp: %s", kvp);
+		}
+
+		kvp = strtok(NULL, " ");
+
+	}
+
+
+	json_object *data = json_object_new_object();
+	char *copy;
+		if (strcmp(evt, "authenticate") == 0) {
+			copy = strdup(inst->auth_data);
+		} else if (strcmp(evt, "preacct") == 0) {
+			copy = strdup(inst->acct_data);
+		} else if (strcmp(evt, "accounting") == 0) {
+			copy = strdup(inst->acct_data);
+		}
+	char *token = strtok(copy, ",");
 	while (token != NULL) {
 
 		item_vp = request->packet->vps;
@@ -210,27 +235,28 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 			if (strcmp(item_vp->da->name, token) == 0) {
 
 				if (item_vp->da->type == PW_TYPE_STRING && item_vp->vp_strvalue) {
-					json_object_object_add(json, token,
+					json_object_object_add(data, token,
 							json_object_new_string(item_vp->vp_strvalue));
 				} else if (item_vp->da->type == PW_TYPE_INTEGER) {
-					json_object_object_add(json, token,
+					json_object_object_add(data, token,
 							json_object_new_int(item_vp->vp_integer));
 				}
 
 				found = 1;
 			}
 			if (!found) {
-				json_object_object_add(json, token, NULL);
+				json_object_object_add(data, token, NULL);
 			}
 			item_vp = item_vp->next;
 		}
 
 		token = strtok(NULL, ",");
 	}
-
+	json_object_object_add(json, "data", data);
 	put_amqp(instance, json_object_to_json_string(json));
 	free(copy);
-
+	free(ckvp);
+	free(kvp);
 }
 
 /*
@@ -326,7 +352,7 @@ static rlm_rcode_t CC_HINT(nonnull) mod_checksimul(UNUSED void *instance,
  */
 static int mod_detach(UNUSED void *instance) {
 	/* free things here */
-	disconnect_amqp();
+	disconnect_amqp(instance);
 	return 0;
 }
 

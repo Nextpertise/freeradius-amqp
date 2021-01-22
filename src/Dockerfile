@@ -25,8 +25,8 @@ libfreeradius-dev
 RUN set -x \
 && ( git clone https://github.com/alanxz/rabbitmq-c.git /tmp/rabbitmq \
 && cd /tmp/rabbitmq \
-&& mkdir build && cd build \
-&& cmake .. \
+&& mkdir build && cd build \ 
+&& cmake -DAMQP_DEFAULT_LOGIN_TIMEOUT_SEC=12 .. \
 && cmake --build . --target install ) \
 && rm -rf /tmp/rabbitmq 
 

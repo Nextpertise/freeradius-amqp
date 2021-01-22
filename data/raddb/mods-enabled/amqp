@@ -8,7 +8,6 @@ amqp {
   connect_timeout = 5
   auth_data = "User-Name,Calling-Station-Id,User-Password"
   acct_data = "Acct-Status-Type"
-  custom_key_hostname = "test.com"
-  custom_key_key2 = "var23"
+  custom_kvp = "hostname=servicec.test.com custom_key1=key1 custom_key2=key2"
   missed_file = "/tmp/amqp_missed.txt"
 }

@@ -39,8 +39,8 @@
 
 void die(const char *fmt, ...);
 extern int die_on_error(int x, char const *context);
-extern void die_on_amqp_error(amqp_rpc_reply_t x, char const *context);
-
+extern int die_on_amqp_error(amqp_rpc_reply_t x, char const *context);
+char *trim(char *str);
 extern void amqp_dump(void const *buffer, size_t len);
 
 extern uint64_t now_microseconds(void);
