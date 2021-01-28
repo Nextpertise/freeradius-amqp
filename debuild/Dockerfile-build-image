@@ -47,7 +47,7 @@ COPY freeradius-amqp.prerm /root/freeradius/freeradius-amqp.prerm
 COPY freeradius-amqp.lintian-overrides /root/freeradius/freeradius-amqp.lintian-overrides
 COPY control.in.update /root/freeradius/control.in.update
 COPY build-deb.sh /root/freeradius/build-deb.sh
-ADD ./src/rlm_amqp /root/freeradius/rlm_amqp
+ADD rlm_amqp /root/freeradius/rlm_amqp
 ADD freeradius-server /root/freeradius/freeradius-server
 
 RUN chmod +x build-deb.sh

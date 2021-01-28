@@ -1,0 +1,7 @@
+
+Package: freeradius-amqp
+Architecture: any
+Depends: freeradius (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}, ${dist:Depends}
+Description: AMQP module for FreeRADIUS server
+ This package is required to add AMQP functionality to the
+ FreeRADIUS server.

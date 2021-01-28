@@ -1,2 +1,4 @@
 *.pcap
 data/rabbitmq
+freeradius-server
+*.deb
