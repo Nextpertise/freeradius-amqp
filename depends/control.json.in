@@ -1,0 +1,8 @@
+Package: json-c
+Version: __VERSION__
+Depends: 
+Section: devel
+Priority: optional
+Architecture: amd64
+Installed-Size: __FILESIZE__
+Description: JSON C Library

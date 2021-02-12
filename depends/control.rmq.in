@@ -1,0 +1,9 @@
+Package: rabbitmq-c
+Version: __VERSION__
+Depends: 
+Section: devel
+Priority: optional
+Architecture: amd64
+Installed-Size: __FILESIZE__
+Description: RabbitMQ C Library
+
