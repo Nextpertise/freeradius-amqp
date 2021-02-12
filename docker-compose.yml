@@ -17,7 +17,7 @@ services:
         - ./data/freeradius/:/etc/freeradius/
   rabbitmq:
     container_name: rabbitmq
-    hostname: freeradiusrabbitmq
+    hostname: rabbitmq
     networks:
     - default
     image: rabbitmq:3.8-management
