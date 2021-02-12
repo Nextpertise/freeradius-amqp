@@ -2,19 +2,25 @@
 Freeradius with AMQP module
 
 How to start:
-1. Build freeradius container:
+1. Build depends / packages
 ```
-cd src
+cd depends
+./build-all.sh
+```
+
+1. Build freeradius runtime container
+```
+cd freeradius-runtime
 ./build.sh
 ```
 
-2. Build consumer
+3. Build consumer
 ```
 cd data/python
 ./build.sh
 ```
 
-3. Start the whole shebang:
+4. Start the whole shebang:
 ```
 docker-compose up -d
 

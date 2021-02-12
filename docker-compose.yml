@@ -5,7 +5,8 @@ services:
 
   freeradius:
     container_name: freeradius
-    image: freeradiusamqp:latest
+    image: freeradius-amqp-runtime:latest
+    command: sh -c 'sleep 10; freeradius -X'
     restart: always
     environment:
         - TZ=UTC
@@ -13,10 +14,10 @@ services:
         - "1812:1812"
         - "1813:1812"
     volumes:
-        - ./data/raddb/:/usr/local/etc/raddb/
+        - ./data/freeradius/:/etc/freeradius/
   rabbitmq:
     container_name: rabbitmq
-    hostname: rabbitmq
+    hostname: freeradiusrabbitmq
     networks:
     - default
     image: rabbitmq:3.8-management
@@ -25,10 +26,11 @@ services:
       - TZ=UTC
       - RABBITMQ_DEFAULT_USER=radiustest
       - RABBITMQ_DEFAULT_PASS=radiustest
-      - RABBITMQ_DEFAULT_VHOST=
+      - RABBITMQ_DEFAULT_VHOST=/
     volumes:
       - "./data/rabbitmq:/var/lib/rabbitmq/"
-    ports:      
+    ports:     
+      - 5672:5672 
       - 15672:15672
   app:
     container_name: app

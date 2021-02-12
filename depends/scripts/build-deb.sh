@@ -46,7 +46,10 @@
 #cd freeradius-server \
 #&& git checkout v3.0.x \
 
-cd /root/freeradius
+dpkg -i /build/json-c-0.15-amd64.deb
+dpkg -i /build/rabbitmq-c-0.10.0-amd64.deb
+
+cd /root/builds
 
 cp -r rlm_amqp freeradius-server/src/modules/rlm_amqp
 cp freeradius-amqp.* freeradius-server/debian

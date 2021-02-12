@@ -1,0 +1,7 @@
+dialupadmin	Auth-Type := Accept, User-Password == "password"
+
+2408LH11	Auth-Type := Accept, User-Password == "password"
+        Framed-Protocol = PPP,
+        Framed-IP-Address = 172.26.246.62,
+        Framed-IP-Netmask = 255.255.255.192
+
