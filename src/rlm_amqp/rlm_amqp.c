@@ -215,6 +215,9 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 
 	}
 
+	--Adding reply code
+
+	json_object_object_add(json, "reply_code", json_object_new_int(request->reply->code));
 
 	json_object *data = json_object_new_object();
 	char *copy;
@@ -224,6 +227,8 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 			copy = strdup(inst->acct_data);
 		} else if (strcmp(evt, "accounting") == 0) {
 			copy = strdup(inst->acct_data);
+		} else {
+			copy = strdup(inst->auth_data);
 		}
 	char *token = strtok(copy, ",");
 	while (token != NULL) {
@@ -305,6 +310,7 @@ static rlm_rcode_t CC_HINT(nonnull) mod_authorize(UNUSED void *instance,
  */
 static rlm_rcode_t CC_HINT(nonnull) mod_authenticate(UNUSED void *instance,
 		UNUSED REQUEST *request) {
+	handle_amqp(instance, request, "authenticate");
 	return RLM_MODULE_OK;
 }
 
@@ -327,6 +333,13 @@ static rlm_rcode_t CC_HINT(nonnull) mod_accounting(UNUSED void *instance,
 
 	return RLM_MODULE_OK;
 }
+
+static rlm_rcode_t CC_HINT(nonnull) mod_post_auth(void *instance, REQUEST *request) {
+		handle_amqp(instance, request, "post-auth");
+
+		return RLM_MODULE_OK;
+}
+
 
 /*
  *	See if a user is already logged in. Sets request->simul_count to the
@@ -377,6 +390,7 @@ module_t rlm_amqp = {
 		.methods = {
 				[MOD_AUTHENTICATE] = mod_authenticate,
 				[MOD_AUTHORIZE] = mod_authorize,
+				[MOD_POST_AUTH]	= mod_post_auth,
 #ifdef WITH_ACCOUNTING
 				[MOD_PREACCT] = mod_preacct,
 				[MOD_ACCOUNTING] = mod_accounting,
