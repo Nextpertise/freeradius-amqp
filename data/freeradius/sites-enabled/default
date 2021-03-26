@@ -403,7 +403,6 @@ authorize {
 	#  Read the 'users' file.  In v3, this is located in
 	#  raddb/mods-config/files/authorize
 	files
-	amqp
 	#
 	#  Look in an SQL database.  The schema of the database
 	#  is meant to mirror the "users" file.
@@ -872,6 +871,7 @@ post-auth {
 
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
+		amqp
 	}
 
 	#
@@ -891,6 +891,8 @@ post-auth {
 			&EAP-Key-Name := &reply:EAP-Session-Id
 		}
 	}
+	amqp
+
 }
 
 #

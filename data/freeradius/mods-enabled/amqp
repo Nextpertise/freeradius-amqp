@@ -1,12 +1,12 @@
 amqp {
-  hostname = "rabbitmq"
+  hostname = "192.168.99.184"
   port = 5672
   username = "radiustest"
   password = "radiustest"
   exchange = "fr.authorize"
   routingkey = "rlm_amqp_authorize"
   connect_timeout = 5
-  auth_data = "User-Name,Calling-Station-Id,User-Password"
+  auth_data = "User-Name,Calling-Station-Id,User-Password,Auth-Type,authorize"
   acct_data = "Acct-Status-Type"
   custom_kvp = "hostname=servicec.test.com custom_key1=key1 custom_key2=key2"
   missed_file = "/tmp/amqp_missed.txt"

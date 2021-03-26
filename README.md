@@ -33,7 +33,7 @@ docker exec -it app /app/worker.py
 
 4. Execute radius request:
 ```
-docker exec -it freeradius /usr/local/etc/raddb/test-radius.sh
+docker exec -it freeradius /etc/freeradius/test-radius.sh
 ```
 
 5. Stop?
