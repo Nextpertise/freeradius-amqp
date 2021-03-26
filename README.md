@@ -41,6 +41,13 @@ docker exec -it freeradius /etc/freeradius/test-radius.sh
 docker-compose down
 ```
 
+## Radperf 
+
+Using radperf to load-test:
+```
+docker exec -it freeradius bash -c 'echo "User-Name=2408LH11,User-Password=password,Framed-Protocol=PPP,Calling-Station-Id=2401LH000110101" | /usr/sbin/radperf -c 10 localhost:1812 auth testing123'
+```
+
 ## Commands / Cheatlist
 ```
 docker exec -it rabbitmq rabbitmqctl list_queues

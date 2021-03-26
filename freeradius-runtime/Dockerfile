@@ -3,7 +3,8 @@ FROM ubuntu:18.04
 ARG APT_OPTS="-y --option=Dpkg::options::=--force-unsafe-io --no-install-recommends"
 
 RUN apt-get update && apt-get install $APT_OPTS \
-vim
+vim \
+wget
 
 ARG STEP1=true
 COPY packages /tmp
@@ -20,6 +21,11 @@ RUN printf "client 0.0.0.0/0 {\nsecret = 12345\nipv4addr = 0.0.0.0\n}" >> /etc/f
 && sed -i 's/#bob/bob/g' /etc/freeradius/mods-config/files/authorize
 #ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64:/usr/local/lib:/usr/local/lib/x86_64-linux-gnu
 #RUN echo $LD_LIBRARY_PATH
+
+
+RUN wget --no-check-certificate https://networkradius.com/assets/packages/radperf/radperf_2.0.1_amd64.deb
+
+RUN dpkg -i radperf_2.0.1_amd64.deb
 
 CMD freeradius -X
 
