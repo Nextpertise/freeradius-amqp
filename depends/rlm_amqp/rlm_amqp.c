@@ -188,6 +188,29 @@ static int put_amqp(void *instance, char const *messagebody) {
 
 }
 
+static const char* get_reply_text(int code){
+	switch(code){
+	case 1:
+		return "Access-Request";
+	case 2:
+		return "Access-Accept";
+	case 3:
+		return "Access-Reject";
+	case 4:
+		return "Accounting-Request";
+	case 5:
+		return "Accounting-Response";
+	case 11:
+		return "Access-Challange";
+	case 12:
+		return "Status-Server";
+	case 13:
+		return "Status-Client";
+	default:
+		return "Unknown";
+	}
+}
+
 
 static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 	rlm_amqp_t *inst = instance;
@@ -216,7 +239,8 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 	}
 
 
-	json_object_object_add(json, "reply_code", json_object_new_int(request->reply->code));
+	//json_object_object_add(json, "reply_code", json_object_new_int(request->reply->code));
+	json_object_object_add(json, "reply_code", json_object_new_string(get_reply_text(request->reply->code)));
 
 	json_object *data = json_object_new_object();
 	char *copy;
