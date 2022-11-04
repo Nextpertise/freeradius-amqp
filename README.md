@@ -2,25 +2,31 @@
 Freeradius with AMQP module
 
 How to start:
-1. Build depends / packages
+1. Checkout
 ```
 cd depends
+git clone git@github.com:FreeRADIUS/freeradius-server.git
+git checkout 0da4faf84733e276bf5265c2d72c807996766a37
+```
+
+2. Build depends / packages
+```
 ./build-all.sh
 ```
 
-1. Build freeradius runtime container
+3. Build freeradius runtime container
 ```
 cd freeradius-runtime
 ./build.sh
 ```
 
-3. Build consumer
+4. Build consumer
 ```
 cd data/python
 ./build.sh
 ```
 
-4. Start the whole shebang:
+5. Start the whole shebang:
 ```
 docker-compose up -d
 
@@ -31,12 +37,12 @@ docker exec -it app /app/appinit.py
 docker exec -it app /app/worker.py
 ```
 
-4. Execute radius request:
+6. Execute radius request:
 ```
 docker exec -it freeradius /etc/freeradius/test-radius.sh
 ```
 
-5. Stop?
+7. Stop?
 ```
 docker-compose down
 ```
