@@ -25,7 +25,7 @@ RUN set -x \
 && fakeroot make install DESTDIR=.)
 
 RUN set -x \
-&& ( git clone https://github.com/alanxz/rabbitmq-c.git rabbitmq \
+&& ( git clone https://github.com/alanxz/rabbitmq-c.git --depth 1 --branch v0.10.0 rabbitmq \
 && mkdir rabbitmq-c-build && cd rabbitmq-c-build \
 && cmake $AMQP_BUILD_OPTIONS ../rabbitmq \
 && make \
