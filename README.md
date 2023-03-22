@@ -1,7 +1,7 @@
 # freeradius-amqp
 Freeradius with AMQP module
 
-## How to build:
+## Build and test 
 
 1. Clone repository in your project directory
 ```
