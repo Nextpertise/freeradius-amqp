@@ -3,9 +3,10 @@ Freeradius with AMQP module
 
 ## How to build:
 
-1. Checkout
+1. Clone repository in your project directory
 ```
 git clone git@github.com:Nextpertise/freeradius-amqp.git
+cd freeradius-amqp
 ```
 
 2. Build Docker image
