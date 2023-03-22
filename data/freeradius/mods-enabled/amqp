@@ -1,5 +1,5 @@
 amqp {
-  hostname = "192.168.99.184"
+  hostname = "rabbitmq"
   port = 5672
   username = "radiustest"
   password = "radiustest"
