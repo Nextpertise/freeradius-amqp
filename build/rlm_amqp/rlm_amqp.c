@@ -29,8 +29,8 @@ RCSID("$Id$")
 #include <freeradius-devel/rad_assert.h>
 
 #include <json-c/json.h>
-#include <amqp.h>
-#include <amqp_tcp_socket.h>
+#include <rabbitmq-c/amqp.h>
+#include <rabbitmq-c/tcp_socket.h>
 #include "utils.h"
 
 #include <sys/time.h>
