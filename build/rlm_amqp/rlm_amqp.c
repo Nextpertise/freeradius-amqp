@@ -29,8 +29,8 @@ RCSID("$Id$")
 #include <freeradius-devel/rad_assert.h>
 
 #include <json-c/json.h>
-#include <amqp.h>
-#include <amqp_tcp_socket.h>
+#include <rabbitmq-c/amqp.h>
+#include <rabbitmq-c/tcp_socket.h>
 #include "utils.h"
 
 #include <sys/time.h>
@@ -123,6 +123,7 @@ static int connect_amqp(void *instance) {
 	int status = 1;
 
 	status = amqp_socket_open_noblock(inst->amqp_socket, inst->hostname, inst->port, tv); //(socket, inst->hostname, inst->port);
+//	status = amqp_socket_open(inst->amqp_socket, inst->hostname, inst->port);
 	if (status) {
 		ERROR("Error opening TCP socket: %d, status: %d",inst->port, status);
 		return -1;
@@ -139,6 +140,8 @@ static int connect_amqp(void *instance) {
 	amqp_channel_open(inst->conn, 1);
 	die_on_amqp_error(amqp_get_rpc_reply(inst->conn), "Opening channel");
 
+        DEBUG("Connected to AMQP");
+
 	return 0;
 }
 
@@ -150,7 +153,7 @@ static void dump_to_file(void *instance, char const *content){
 		ERROR("Error in file operation, messge will not be dumped: %s",content);
 		return;
 	}
-	DEBUG("Dumping mayload to missed_file: %s",inst->missed_file);
+	DEBUG("Dumping payload to missed_file: %s",inst->missed_file);
 	fprintf(fptr,"%s\n", content);
 	fclose(fptr);
 }
@@ -223,7 +226,7 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 	json_object_object_add(json, "event_type", json_object_new_string(evt));
 
 	char *ckvp = strdup(inst->custom_kvp);
-	char *kvp = strtok(ckvp, " ");
+	char *kvp = strtok(ckvp, ",");
 
 	while(kvp != NULL){
 		char *key = malloc(100);
@@ -268,6 +271,9 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 				} else if (item_vp->da->type == PW_TYPE_INTEGER) {
 					json_object_object_add(data, token,
 							json_object_new_int(item_vp->vp_integer));
+				} else if (item_vp->da->type == PW_TYPE_IPV4_ADDR) {
+					json_object_object_add(data, token,
+							json_object_new_int(item_vp->vp_ipaddr));
 				}
 
 				found = 1;
@@ -309,6 +315,7 @@ static int mod_instantiate(CONF_SECTION *conf, void *instance) {
 		return -1;
 	}
 
+	sleep(5);
 	connect_amqp(instance);
 
 	return 0;

@@ -6,7 +6,7 @@ WORKDIR /root/builds
 ARG APT_OPTS="-y --option=Dpkg::options::=--force-unsafe-io --no-install-recommends"
 
 RUN apt-get update && apt-get install $APT_OPTS git libssl-dev cmake g++ libtalloc-dev libkqueue-dev ca-certificates libcurl4-openssl-dev libcap-dev libgdbm-dev libiodbc2-dev libkrb5-dev libldap2-dev libpam0g-dev libpcap-dev libperl-dev libmysqlclient-dev libpq-dev libreadline-dev libsasl2-dev libsqlite3-dev libssl-dev libtalloc-dev libwbclient-dev libyubikey-dev libykclient-dev libmemcached-dev libhiredis-dev python-dev samba-dev \
-devscripts quilt debhelper fakeroot equivs build-essential libsystemd-dev dh-systemd libjson-c3 git libjson-c-dev
+devscripts quilt debhelper fakeroot equivs build-essential libsystemd-dev dh-systemd libjson-c3 git libjson-c-dev wget
 
 RUN set -x \
 	&& ( git clone https://github.com/json-c/json-c.git json-c \
@@ -17,9 +17,10 @@ RUN set -x \
 	&& fakeroot make install DESTDIR=.)
 
 RUN set -x \
-	&& ( git clone https://github.com/alanxz/rabbitmq-c.git --depth 1 --branch v0.10.0 rabbitmq \
+	&& ( wget https://github.com/alanxz/rabbitmq-c/archive/refs/tags/v0.13.0.tar.gz \
+	&& tar zxvf v0.13.0.tar.gz -C rabbitmq-c \
 	&& mkdir rabbitmq-c-build && cd rabbitmq-c-build \
-	&& cmake $AMQP_BUILD_OPTIONS ../rabbitmq \
+	&& cmake $AMQP_BUILD_OPTIONS ../rabbitmq-c \
 	&& make \
 	&& fakeroot make install DESTDIR=. )
 
@@ -40,7 +41,7 @@ RUN chmod +x build-deb.sh
 
 RUN git clone https://github.com/FreeRADIUS/freeradius-server.git && \
 	cd freeradius-server && \
-	git checkout 0da4faf84733e276bf5265c2d72c807996766a37
+	git checkout b9ed73ef2d2628fa6e2a6d15a7782f8217966be0
 ADD rlm_amqp /root/builds/freeradius-server/src/modules/rlm_amqp
 
 RUN mkdir /build && \
