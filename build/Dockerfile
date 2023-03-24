@@ -49,14 +49,12 @@ RUN mkdir /build && \
 	/root/builds/build-rabbitmq-c.sh && \
 	/root/builds/build-deb.sh
 
+RUN cd /build && wget --no-check-certificate https://networkradius.com/assets/packages/radperf/radperf_2.0.1_amd64.deb
+
 
 FROM ubuntu:22.04
 
 ARG APT_OPTS="-y --option=Dpkg::options::=--force-unsafe-io --no-install-recommends"
-
-RUN apt-get update && apt-get install $APT_OPTS \
-vim \
-wget
 
 ARG STEP1=true
 COPY --from=builder /build /tmp
@@ -68,8 +66,6 @@ RUN dpkg -i *.deb || \
 
 COPY config/amqp /etc/freeradius/mods-available
 
-RUN wget --no-check-certificate https://networkradius.com/assets/packages/radperf/radperf_2.0.1_amd64.deb && \
-	dpkg -i radperf_2.0.1_amd64.deb
 RUN rm /tmp/* && \
 	cd /etc/freeradius/mods-enabled && \
 	ln -s ../mods-available/amqp .
