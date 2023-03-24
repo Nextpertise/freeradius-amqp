@@ -18,7 +18,7 @@ RUN set -x \
 
 RUN set -x \
 	&& ( wget https://github.com/alanxz/rabbitmq-c/archive/refs/tags/v0.13.0.tar.gz \
-	&& tar zxvf v0.13.0.tar.gz -C rabbitmq-c \
+	&& mkdir rabbitmq-c && tar zxvf v0.13.0.tar.gz --strip-components 1 -C rabbitmq-c \
 	&& mkdir rabbitmq-c-build && cd rabbitmq-c-build \
 	&& cmake $AMQP_BUILD_OPTIONS ../rabbitmq-c \
 	&& make \
