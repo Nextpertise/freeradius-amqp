@@ -1,12 +1,12 @@
-FROM ubuntu:18.04 as builder
+FROM ubuntu:22.04 as builder
 
 RUN mkdir /root/builds
 WORKDIR /root/builds
 
 ARG APT_OPTS="-y --option=Dpkg::options::=--force-unsafe-io --no-install-recommends"
 
-RUN apt-get update && apt-get install $APT_OPTS git libssl-dev cmake g++ libtalloc-dev libkqueue-dev ca-certificates libcurl4-openssl-dev libcap-dev libgdbm-dev libiodbc2-dev libkrb5-dev libldap2-dev libpam0g-dev libpcap-dev libperl-dev libmysqlclient-dev libpq-dev libreadline-dev libsasl2-dev libsqlite3-dev libssl-dev libtalloc-dev libwbclient-dev libyubikey-dev libykclient-dev libmemcached-dev libhiredis-dev python-dev samba-dev \
-devscripts quilt debhelper fakeroot equivs build-essential libsystemd-dev dh-systemd libjson-c3 git libjson-c-dev wget
+RUN apt-get update && apt-get install $APT_OPTS git libssl-dev cmake g++ libtalloc-dev libkqueue-dev ca-certificates libcurl4-openssl-dev libcap-dev libgdbm-dev libiodbc2-dev libkrb5-dev libldap2-dev libpam0g-dev libpcap-dev libperl-dev libmysqlclient-dev libpq-dev libreadline-dev libsasl2-dev libsqlite3-dev libssl-dev libtalloc-dev libwbclient-dev libyubikey-dev libykclient-dev libmemcached-dev libhiredis-dev samba-dev \
+freetds-dev libunbound-dev python3-dev libpython3-dev devscripts quilt debhelper fakeroot equivs build-essential libsystemd-dev git libjson-c-dev wget
 
 RUN set -x \
 	&& ( git clone https://github.com/json-c/json-c.git json-c \
@@ -50,7 +50,7 @@ RUN mkdir /build && \
 	/root/builds/build-deb.sh
 
 
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 ARG APT_OPTS="-y --option=Dpkg::options::=--force-unsafe-io --no-install-recommends"
 
