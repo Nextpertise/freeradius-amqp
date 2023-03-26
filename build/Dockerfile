@@ -49,12 +49,13 @@ RUN mkdir /build && \
 	/root/builds/build-rabbitmq-c.sh && \
 	/root/builds/build-deb.sh
 
-RUN cd /build && wget --no-check-certificate https://networkradius.com/assets/packages/radperf/radperf_2.0.1_amd64.deb
 
 
 FROM ubuntu:22.04
 
 ARG APT_OPTS="-y --option=Dpkg::options::=--force-unsafe-io --no-install-recommends"
+
+RUN apt-get update
 
 ARG STEP1=true
 COPY --from=builder /build /tmp
