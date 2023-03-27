@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ '*' ]
+    branches: ['*']
   pull_request:
-    branches: [ '*' ]
+    branches: []
 
 jobs:
 
@@ -23,8 +23,8 @@ jobs:
     - name: Build the Docker image
       uses: VaultVulp/gp-docker-action@1.6.0
       with:
-        github-token: abc
-        image-name: ghcr.io/nextpertise/freeradius-amqp
+        github-token: ${{ SECRETS.github_action_push_to_registry }}
+        image-name: freeradius-amqp
         image-tag: ${{ steps.extract_branch.outputs.branch }}
         build-context: ./build
 
