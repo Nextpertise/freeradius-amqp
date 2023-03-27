@@ -22,12 +22,12 @@ jobs:
     
     - name: Debug me
       shell: bash
-      run: echo "${{ SECRETS.github_action_push_to_registry }}"
+      run: echo "${{ SECRETS.GHCR_PUSH_SECRET }}"
     
     - name: Build the Docker image
       uses: VaultVulp/gp-docker-action@1.6.0
       with:
-        github-token: foobar
+        github-token: ${{ SECRETS.GHCR_PUSH_SECRET }}
         image-name: freeradius-amqp
         image-tag: ${{ steps.extract_branch.outputs.branch }}
         build-context: ./build
