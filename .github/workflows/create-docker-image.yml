@@ -20,10 +20,14 @@ jobs:
       run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >>$GITHUB_OUTPUT
       id: extract_branch
     
+    - name: Debug me
+      shell: bash
+      run: echo "${{ SECRETS.github_action_push_to_registry }}"
+    
     - name: Build the Docker image
       uses: VaultVulp/gp-docker-action@1.6.0
       with:
-        github-token: ${{ SECRETS.github_action_push_to_registry }}
+        github-token: foobar
         image-name: freeradius-amqp
         image-tag: ${{ steps.extract_branch.outputs.branch }}
         build-context: ./build
