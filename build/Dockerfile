@@ -69,6 +69,7 @@ COPY config/amqp /etc/freeradius/mods-available
 
 RUN rm /tmp/* && \
 	cd /etc/freeradius/mods-enabled && \
-	ln -s ../mods-available/amqp .
+	ln -s ../mods-available/amqp . && \
+	apt-get clean
 
 CMD freeradius -X
