@@ -4,7 +4,7 @@ on:
   push:
     branches: ['*']
   pull_request:
-    branches: []
+    branches: ['never_run_on_prs']
 
 jobs:
 
