@@ -15,5 +15,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
+      uses: VaultVulp/gp-docker-action@1.1.12
+      with:
+        github-token: abc
+        image-name: ghcr.io/nextpertise/freeradius-amqp
       working-directory: ./build
-      run: docker build . --file Dockerfile --tag freeradius-amqp:$(date +%s)
