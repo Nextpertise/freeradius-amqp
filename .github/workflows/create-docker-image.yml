@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "*" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "*" ]
 
 jobs:
 
@@ -14,9 +14,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Extract branch name
+      shell: bash
+      run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >>$GITHUB_OUTPUT
+      id: extract_branch
+    
     - name: Build the Docker image
       uses: VaultVulp/gp-docker-action@1.1.12
       with:
         github-token: abc
         image-name: ghcr.io/nextpertise/freeradius-amqp
-      working-directory: ./build
+        image-tag: {{ steps.extract_branch.outputs.branch }}
+        build-context: ./build
+
