@@ -9,13 +9,13 @@ git clone git@github.com:Nextpertise/freeradius-amqp.git
 cd freeradius-amqp
 ```
 
-2. Build Docker image
+2. Build Docker image (optional)
 ```
 cd build
 ./build.sh
 ```
 
-3. Build consumer
+3. Build consumer (optional, for testing only)
 ```
 cd data/python
 ./build.sh
@@ -54,9 +54,9 @@ docker exec -it rabbitmq rabbitmqctl list_queues
 docker exec -it rabbitmq rabbitmqctl list_queues --vhost "/"
 
 # Single test
-echo "User-Name=2408LH11,User-Password=password,Framed-Protocol=PPP,Calling-Station-Id=2401LH000110101" | radperf -c 10 localhost:1812 auth testing123
+echo "User-Name=nextpertise,User-Password=password,Framed-Protocol=PPP,Calling-Station-Id=2408ZE10" | radperf -c 10 localhost:1812 auth testing123
 
-# Radperf
-docker exec -it freeradius bash -c 'echo "User-Name=2408LH11,User-Password=password,Framed-Protocol=PPP,Calling-Station-Id=2401LH000110101" | /usr/sbin/radperf -c 10 localhost:1812 auth testing123'
+# Radperf (not included)
+docker exec -it freeradius bash -c 'echo "User-Name=nextpertise,User-Password=password,Framed-Protocol=PPP,Calling-Station-Id=2408ZE10" | /usr/sbin/radperf -c 10 localhost:1812 auth testing123'
 ```
 
