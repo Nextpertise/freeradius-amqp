@@ -25,6 +25,6 @@ jobs:
       with:
         github-token: abc
         image-name: ghcr.io/nextpertise/freeradius-amqp
-        image-tag: {{ steps.extract_branch.outputs.branch }}
+        image-tag: ${{ steps.extract_branch.outputs.branch }}
         build-context: ./build
 
