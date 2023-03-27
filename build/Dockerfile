@@ -72,4 +72,5 @@ RUN rm /tmp/* && \
 	ln -s ../mods-available/amqp . && \
 	apt-get clean
 
+WORKDIR /etc/freeradius
 CMD freeradius -X

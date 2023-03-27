@@ -2,9 +2,9 @@
 #
 #  The database schemas are available at:
 #
-#       raddb/sql/ippool/<DB>/schema.sql
+#       raddb/mods-config/sql/ippool/<DB>/schema.sql
 #
-#  $Id: d2330413eaa13ff6e3e9a23cf9f631aa61a3fa33 $
+#  $Id: f17a9898e906d3db0ad5871d8683f731f7a6baab $
 
 sqlippool {
 	# SQL instance to use (from mods-available/sql)
@@ -25,6 +25,11 @@ sqlippool {
 	ippool_table = "radippool"
 
 	# IP lease duration. (Leases expire even if Acct Stop packet is lost)
+	#
+	#  Note that you SHOULD also set Session-Timeout to this value!
+	#  That way the NAS will automatically kick the user offline when the
+	#  lease expires.
+	#
 	lease_duration = 3600
 
 	#
@@ -34,22 +39,16 @@ sqlippool {
 	allocate_clear_timeout = 1
 
 	#
-	#  As of 3.0.16, the 'ipv6 = yes' configuration is deprecated.
-	#  You should use the "attribute_name" configuration item
-	#  below, instead.
-	#
-
-	#
 	#  The attribute to use for IP address assignment.  The
 	#  default is Framed-IP-Address.  You can change this to any
 	#  attribute which is IPv4 or IPv6.
 	#
 	#  e.g. Framed-IPv6-Prefix, or Delegated-IPv6-Prefix.
 	#
-	#  As of 3.0.16, all of the default queries have been updated to use
-	#  this attribute_name.  So you can do IPv6 address assignment simply
-	#  by putting IPv6 addresses into the pool, and changing the following
-	#  line to "Framed-IPv6-Prefix"
+	#  All of the default queries use this attribute_name.  So you
+	#  can do IPv6 address assignment simply by putting IPv6
+	#  addresses into the pool, and changing the following line to
+	#  "Framed-IPv6-Prefix"
 	#
 	#  Note that you MUST use separate pools for each attribute.  i.e. one pool
 	#  for Framed-IP-Address, a different one for Framed-IPv6-prefix, etc.
@@ -99,7 +98,7 @@ sqlippool {
 
 		success = "Allocated IP: %{reply:${..attribute_name}} from %{control:${..pool_name}} (did %{Called-Station-Id} cli %{Calling-Station-Id} port %{NAS-Port} user %{User-Name})"
 
-		clear = "Released IP ${..attribute_name} (did %{Called-Station-Id} cli %{Calling-Station-Id} user %{User-Name})"
+		clear = "Released IP %{request:${..attribute_name}} (did %{Called-Station-Id} cli %{Calling-Station-Id} user %{User-Name})"
 
 		failed = "IP Allocation FAILED from %{control:${..pool_name}} (did %{Called-Station-Id} cli %{Calling-Station-Id} port %{NAS-Port} user %{User-Name})"
 

@@ -1,15 +1,16 @@
 #!/bin/sh
 #
-#  main/sqlite/process-radacct-refresh.sh -- Schema extensions and script for processing radacct entries
+#  main/sqlite/process-radacct-new-data-usage-period.sh -- Script for
+#    processing radacct entries to extract daily usage
 #
-#  $Id: c148b3f135b6875242fde93ca8404eeda0cd0f7d $
+#  $Id: 0deb3911441ce65f55e697d55f04c3e499e883ab $
 
 #
 #  See process-radacct-schema.sql for details.
 #
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: process-radacct-refresh.sh SQLITE_DB_FILE" 2>&1
+    echo "Usage: process-radacct-new-data-usage-period.sh SQLITE_DB_FILE" 2>&1
     exit 1
 fi
 
@@ -30,7 +31,7 @@ cat <<EOF | sqlite3 "$1"
         PRIMARY KEY (key)
     );
 
-    INSERT INTO vars SELECT 'v_start', COALESCE(DATETIME(MAX(period_start), '+1 seconds'), DATETIME(0, 'unixepoch')) FROM data_usage_by_period;
+    INSERT INTO vars SELECT 'v_start', COALESCE(DATETIME(MAX(period_end), '+1 seconds'), DATETIME(0, 'unixepoch')) FROM data_usage_by_period;
     INSERT INTO vars SELECT 'v_end', CURRENT_TIMESTAMP;
 
 
@@ -60,7 +61,18 @@ cat <<EOF | sqlite3 "$1"
         FROM
             radacct
         WHERE
-            acctstoptime > (SELECT value FROM vars WHERE key='v_start') OR
+            acctstoptime > (SELECT value FROM vars WHERE key='v_start');
+
+    INSERT INTO radacct_sessions
+        SELECT
+            username,
+            acctstarttime,
+            acctstoptime,
+            acctinputoctets,
+            acctoutputoctets
+        FROM
+            radacct
+        WHERE
             acctstoptime IS NULL;
 
 

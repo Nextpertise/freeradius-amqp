@@ -72,12 +72,12 @@ listen {
 	#
 	#  Name of user that is allowed to connect to the control socket.
 	#
-#	uid = radius
+#	uid = freerad
 
 	#
 	#  Name of group that is allowed to connect to the control socket.
 	#
-#	gid = radius
+#	gid = freerad
 
 	#
 	#  Access mode.

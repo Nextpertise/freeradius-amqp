@@ -1,17 +1,13 @@
 /*
- * $Id: 10a33464a153d4482e34e55bea7e8c652c472a56 $
+ * $Id: 518bc5d2ecf22b546b2cdd4845eee542fc916b25 $
  *
- * Postgresql schema for FreeRADIUS
- *
- * All field lengths need checking as some are still suboptimal. -pnixon 2003-07-13
+ * PostgreSQL schema for FreeRADIUS
  *
  */
 
 /*
  * Table structure for table 'radacct'
  *
- * Note: Column type bigserial does not exist prior to Postgres 7.2
- *       If you run an older version you need to change this to serial
  */
 CREATE TABLE IF NOT EXISTS radacct (
 	RadAcctId		bigserial PRIMARY KEY,
@@ -41,7 +37,8 @@ CREATE TABLE IF NOT EXISTS radacct (
 	FramedIPv6Address	inet,
 	FramedIPv6Prefix	inet,
 	FramedInterfaceId	text,
-	DelegatedIPv6Prefix	inet
+	DelegatedIPv6Prefix	inet,
+	Class			text
 );
 -- This index may be useful..
 -- CREATE UNIQUE INDEX radacct_whoson on radacct (AcctStartTime, nasipaddress);
@@ -64,25 +61,8 @@ CREATE INDEX radacct_start_user_idx ON radacct (AcctStartTime, UserName);
 -- and, optionally
 -- CREATE INDEX radacct_stop_user_idx ON radacct (acctStopTime, UserName);
 
-/*
- * There was WAAAY too many indexes previously. This combo index
- * should take care of the most common searches.
- * I have commented out all the old indexes, but left them in case
- * someone wants them. I don't recomend anywone use them all at once
- * as they will slow down your DB too much.
- *  - pnixon 2003-07-13
- */
-
-/*
- * create index radacct_UserName on radacct (UserName);
- * create index radacct_AcctSessionId on radacct (AcctSessionId);
- * create index radacct_AcctUniqueId on radacct (AcctUniqueId);
- * create index radacct_FramedIPAddress on radacct (FramedIPAddress);
- * create index radacct_NASIPAddress on radacct (NASIPAddress);
- * create index radacct_AcctStartTime on radacct (AcctStartTime);
- * create index radacct_AcctStopTime on radacct (AcctStopTime);
-*/
-
+-- and for Class
+CREATE INDEX radacct_calss_idx ON radacct (Class);
 
 
 /*
@@ -167,8 +147,11 @@ CREATE TABLE IF NOT EXISTS radpostauth (
 	reply			text,
 	CalledStationId		text,
 	CallingStationId	text,
-	authdate		timestamp with time zone NOT NULL default now()
+	authdate		timestamp with time zone NOT NULL default now(),
+	Class			text
 );
+CREATE INDEX radpostauth_username_idx ON radpostauth (username);
+CREATE INDEX radpostauth_class_idx ON radpostauth (Class);
 
 /*
  * Table structure for table 'nas'
@@ -185,3 +168,11 @@ CREATE TABLE IF NOT EXISTS nas (
 	description		text
 );
 create index nas_nasname on nas (nasname);
+
+/*
+ * Table structure for table 'nasreload'
+ */
+CREATE TABLE IF NOT EXISTS nasreload (
+	NASIPAddress		inet PRIMARY KEY,
+	ReloadTime		timestamp with time zone NOT NULL
+);

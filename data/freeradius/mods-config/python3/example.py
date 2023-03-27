@@ -1,9 +1,9 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python3
 #
 # Python module example file
 # Miguel A.L. Paraz <mparaz@mparaz.com>
 #
-# $Id: cfc69020067796d5e7c9f1dd4b67ce8dd57f4ac2 $
+# $Id: bb2d99775ade0a78f7390bfb352904568c0139e4 $
 
 import radiusd
 
@@ -11,61 +11,61 @@ import radiusd
 # input and output formats
 
 def instantiate(p):
-  print "*** instantiate ***"
-  print p
+  print("*** instantiate ***")
+  print(p)
   # return 0 for success or -1 for failure
 
 
 def authorize(p):
-  print "*** authorize ***"
+  print("*** authorize ***")
   radiusd.radlog(radiusd.L_INFO, '*** radlog call in authorize ***')
-  print
-  print p
-  print
-  print radiusd.config
+  print()
+  print(p)
+  print()
+  print(radiusd.config)
   return radiusd.RLM_MODULE_OK
 
 
 def preacct(p):
-  print "*** preacct ***"
-  print p
+  print("*** preacct ***")
+  print(p)
   return radiusd.RLM_MODULE_OK
 
 
 def accounting(p):
-  print "*** accounting ***"
+  print("*** accounting ***")
   radiusd.radlog(radiusd.L_INFO, '*** radlog call in accounting (0) ***')
-  print
-  print p
+  print()
+  print(p)
   return radiusd.RLM_MODULE_OK
 
 
 def pre_proxy(p):
-  print "*** pre_proxy ***"
-  print p
+  print("*** pre_proxy ***")
+  print(p)
   return radiusd.RLM_MODULE_OK
 
 
 def post_proxy(p):
-  print "*** post_proxy ***"
-  print p
+  print("*** post_proxy ***")
+  print(p)
   return radiusd.RLM_MODULE_OK
 
 
 def post_auth(p):
-  print "*** post_auth ***"
+  print("*** post_auth ***")
 
   # This is true when using pass_all_vps_dict
   if type(p) is dict:
-    print "Request:", p["request"]
-    print "Reply:", p["reply"]
-    print "Config:", p["config"]
-    print "State:", p["session-state"]
-    print "Proxy-Request:", p["proxy-request"]
-    print "Proxy-Reply:", p["proxy-reply"]
+    print("Request:", p["request"])
+    print("Reply:", p["reply"])
+    print("Config:", p["config"])
+    print("State:", p["session-state"])
+    print("Proxy-Request:", p["proxy-request"])
+    print("Proxy-Reply:", p["proxy-reply"])
 
   else:
-    print p
+    print(p)
 
   # Dictionary representing changes we want to make to the different VPS
   update_dict = {
@@ -82,18 +82,18 @@ def post_auth(p):
 
 
 def recv_coa(p):
-  print "*** recv_coa ***"
-  print p
+  print("*** recv_coa ***")
+  print(p)
   return radiusd.RLM_MODULE_OK
 
 
 def send_coa(p):
-  print "*** send_coa ***"
-  print p
+  print("*** send_coa ***")
+  print(p)
   return radiusd.RLM_MODULE_OK
 
 
-def detach():
-  print "*** goodbye from example.py ***"
+def detach(p):
+  print("*** goodbye from example.py ***")
   return radiusd.RLM_MODULE_OK
 

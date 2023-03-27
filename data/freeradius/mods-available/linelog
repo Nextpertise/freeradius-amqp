@@ -1,6 +1,6 @@
 # -*- text -*-
 #
-#  $Id: dc2a8195b3c1c2251fc37651ea4a598898c33d12 $
+#  $Id: 66d26823db4ba9faf4800f60a81e73fad1a56ee9 $
 
 #
 #  The "linelog" module will log one line of text to a file.
@@ -15,6 +15,9 @@ linelog {
 	#
 	#  If the filename is "syslog", then the log messages will
 	#  go to syslog.
+	#
+	#  The output can be directed to stdout by using /dev/stdout
+	#
 	filename = ${logdir}/linelog
 
 	#
@@ -81,6 +84,12 @@ linelog {
 
 	#  If logging via syslog, the severity can be set here.
 	#  Defaults to info.
+
+	#
+	#  Optional header format string.
+	#  Written to the first line of any newly created log file
+#	header = "This is a header line"
+
 	#
 	#  The default format string.
 	format = "This is a log message for %{User-Name}"

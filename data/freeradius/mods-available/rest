@@ -90,6 +90,11 @@ rest {
 	#    password     - Password to use for authentication, will be expanded.
 	#    require_auth - Require HTTP authentication.
 	#    timeout      - HTTP request timeout in seconds, defaults to 4.0.
+	#    chunk        - Chunk size to use. If set, HTTP chunked encoding is used to
+	#                   send data to the REST server. Make sure that this is large
+	#                   enough to fit your largest attribute value's text
+	#                   representation.
+	#                   A number like 8192 is good.
 	#
 	#  Additional HTTP headers may be specified with control:REST-HTTP-Header.
 	#  The values of those attributes should be in the format:
@@ -221,9 +226,20 @@ rest {
 		tls = ${..tls}
 	}
 
+	#  Options for calling rest xlats
+	#  uri and method will be derived from the string provided to the xlat
+	xlat {
+		#
+		#  The whole string passed to a REST xlat is URI encoded.
+		#  With body_uri_encode = yes, any body data will remain encoded.
+		#  With body_uri_encode = no, the body data will be decoded and sent as provided.
+		#
+		body_uri_encode = yes
+		tls = ${..tls}
+	}
+
 	#
-	#  The connection pool is new for 3.0, and will be used in many
-	#  modules, for all kinds of connection-related activity.
+	#  The connection pool is used to pool outgoing connections.
 	#
 	pool {
 		#  Connections to create during module instantiation.

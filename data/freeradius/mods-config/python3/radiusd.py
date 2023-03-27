@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python3
 #
 # Definitions for RADIUS programs
 #
@@ -8,7 +8,7 @@
 # Inside freeradius, the 'radiusd' Python module is created by the C module
 # and the definitions are automatically created.
 #
-# $Id: 7129923994fcc3cdffef1fb17e34b975796bf8aa $
+# $Id: e9db28a4fa7dc8fe163a1d1a1dcf23771ef32990 $
 
 # from modules.h
 
@@ -41,7 +41,3 @@ L_DBG_ERR_REQ = 20
 def radlog(level, msg):
     import sys
     sys.stdout.write(msg + '\n')
-
-    level = level
-
-

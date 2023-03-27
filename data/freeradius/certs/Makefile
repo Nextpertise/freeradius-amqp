@@ -5,7 +5,7 @@
 #
 #	See the README file in this directory for more information.
 #
-#	$Id: 8560a831129d70e86db86a0c392fe86553b613ec $
+#	$Id: c9fbc9e8646bb157092e48c95352cb2866bafeaf $
 #
 ######################################################################
 
@@ -122,6 +122,7 @@ client.crt: ca.key ca.pem client.csr
 client.p12: client.crt
 	$(OPENSSL) pkcs12 -export -in client.crt -inkey client.key -out client.p12  -passin pass:$(PASSWORD_CLIENT) -passout pass:$(PASSWORD_CLIENT)
 	chmod g+r client.p12
+	cp client.p12 $(USER_NAME).p12
 
 client.pem: client.p12
 	$(OPENSSL) pkcs12 -in client.p12 -out client.pem -passin pass:$(PASSWORD_CLIENT) -passout pass:$(PASSWORD_CLIENT)
