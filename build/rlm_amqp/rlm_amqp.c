@@ -35,6 +35,19 @@ RCSID("$Id$")
 
 #include <sys/time.h>
 
+#define type_name(expr) \ 
+    (_Generic((expr), \ 
+              char: "char", unsigned char: "unsigned char", signed char: "signed char", \ 
+              short: "short", unsigned short: "unsigned short", \ 
+              int: "int", unsigned int: "unsigned int", \ 
+              long: "long", unsigned long: "unsigned long", \ 
+              long long: "long long", unsigned long long: "unsigned long long", \ 
+              float: "float", \ 
+              double: "double", \ 
+              long double: "long double", \ 
+              void*: "void*", \ 
+              default: "?")) 
+	
 
 /*
  *	Define a structure for our module configuration.
@@ -272,6 +285,8 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 					json_object_object_add(data, token,
 							json_object_new_int(item_vp->vp_integer));
 				} else if (item_vp->da->type == PW_TYPE_IPV4_ADDR) {
+					printf("%s is of type %s\n", item_vp->vp_ipaddr, type_name(item_vp->vp_ipaddr));
+					printf("%d is of type %s\n", item_vp->vp_ipaddr, type_name(item_vp->vp_ipaddr));
 					json_object_object_add(data, token,
 							json_object_new_int(item_vp->vp_ipaddr));
 				}
