@@ -257,6 +257,9 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 			copy = strdup(inst->auth_data);
 		}
 	char *token = strtok(copy, ",");
+
+	char buffer[INET_ADDRSTRLEN];
+
 	while (token != NULL) {
 
 		item_vp = request->packet->vps;
