@@ -276,7 +276,7 @@ static void handle_amqp(void *instance, REQUEST *request, char const *evt) {
 							json_object_new_int(item_vp->vp_integer));
 				} else if (item_vp->da->type == PW_TYPE_IPV4_ADDR) {
 					json_object_object_add(data, token,
-							json_object_new_string(inet_netop(AF_INET, &item_vp->vp_ipaddr, buffer, sizeof(buffer))));
+							json_object_new_string(inet_ntop(AF_INET, &item_vp->vp_ipaddr, buffer, sizeof(buffer))));
 				}
 
 				found = 1;
